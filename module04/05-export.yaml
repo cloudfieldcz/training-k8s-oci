@@ -1,0 +1,58 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: exportjob
+spec:
+  schedule: "*/2 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: export
+            image: jbergknoff/postgresql-client
+            command: ["/bin/sh"]
+            args: ["-c", "psql -c \"\\copy (Select * From todo) To /exports/$(date +%s).csv With CSV\""]
+            envFrom:
+              - secretRef:
+                  name: psql
+            volumeMounts:
+            - name: exportvolume
+              mountPath: "/exports"
+              readOnly: false
+            resources:  
+              limits:  
+                cpu: 10m
+                memory: 32Mi
+              requests: 
+                cpu: 10m
+                memory: 32Mi
+          volumes:
+            - name: exportvolume
+              persistentVolumeClaim:
+                claimName: oke-fsspvc
+                readOnly: false
+          restartPolicy: OnFailure
+
+---
+
+kind: Pod
+apiVersion: v1
+metadata:
+  name: ubuntu
+spec:
+  containers:
+    - name: ubuntu
+      image: tutum/curl
+      command: ["tail"]
+      args: ["-f", "/dev/null"]
+      volumeMounts:
+      - name: exportvolume
+        mountPath: "/exports"
+        readOnly: false
+  volumes:
+    - name: exportvolume
+      persistentVolumeClaim:
+        claimName: oke-fsspvc
+        readOnly: false
+      

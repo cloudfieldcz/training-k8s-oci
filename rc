@@ -1,0 +1,7 @@
+# derived variables
+export TENANCY=ocid1.tenancy.oc1.#####
+export DOCKER_SRV=eu-frankfurt-1.ocir.io
+export DOCKER_TENANT="########"
+export DOCKER_USR="${DOCKER_TENANT}/#######"
+export DOCKER_KEY="#######"
+export DOCKER_PATH="${DOCKER_SRV}/${DOCKER_TENANT}/ocik8s"
