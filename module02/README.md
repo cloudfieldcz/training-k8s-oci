@@ -22,15 +22,8 @@ kubectl create secret docker-registry ocirsecret --docker-server=${DOCKER_SRV} \
 sed -i 's/YOUROCIRNAME/'$DOCKER_PATH'/g' *.yaml
 ```
 
-# Check AKS dashboard
-```bash
-# let's check Kubernetes dashboard
-# you will need token from your .kube/config file for access
-az aks browse --resource-group ${RESOURCE_GROUP} --name ${AKS_CLUSTER_NAME}
-```
-
 # Deploy single Pod
-First we will deploy single Pod. Note we are using imagePullPolicy set to Always, which requires download image always from Container Registry rather than using cache on node. This might sound less efficient, but is considered best practice from security perspective. In our simple example whole AKS cluster is trusted for ACR, but you might want different administrators have different level of access to ACR. Credentials to ACR would be checked every time Kubernetes downloads image from repository and we do not want to bypass this by running from unauthenticated local cache on node.
+First we will deploy single Pod. Note we are using imagePullPolicy set to Always, which requires download image always from Container Registry rather than using cache on node. This might sound less efficient, but is considered best practice from security perspective. In our simple example whole OKE cluster is trusted for CR, but you might want different administrators have different level of access to CR. Credentials to CR would be checked every time Kubernetes downloads image from repository and we do not want to bypass this by running from unauthenticated local cache on node.
 ```
 kubectl apply -f 01-myappspa-pod.yaml
 ```
@@ -119,7 +112,7 @@ kubectl get pods --show-labels
 Kubernetes have killed one of your Pods. Now we have 4 instances, but desired state is 3, so controller removed one of those.
 
 # Create externally accessible Service
-Kubernetes includes internal load balancer and service discovery called Service. This creates internal virtual IP address (cluster IP), load balancing rules are DNS records in internal DNS service. In order to get access to Service from outside AKS has implemented driver for type: LoadBalancer which calls OCI and deploy rules to Load Balancer. By default it will create externally accessible public IP, but can be also configured for internal LB (for apps that should be accessible only within virtual network or via VPN).
+Kubernetes includes internal load balancer and service discovery called Service. This creates internal virtual IP address (cluster IP), load balancing rules are DNS records in internal DNS service. In order to get access to Service from outside OKE has implemented driver for type: LoadBalancer which calls OCI and deploy rules to Load Balancer. By default it will create externally accessible public IP, but can be also configured for internal LB (for apps that should be accessible only within virtual network or via VPN).
 
 Let's create one. Note "selector". That is way how Service identifies Pods to send traffic to. We have intentionally included labels app and component, but not type (you will see why later in lab).
 ```

@@ -143,5 +143,5 @@ oci ce cluster create-kubeconfig --cluster-id "${OCE}"
 
 ## [04 - Optimizing deployment in Kubernetes](module04/README.md)
 
-## [05 - DevOps with AKS and introduction to helm](module05/README.md)
+## [05 - DevOps with OKE and introduction to helm](module05/README.md)
 
