@@ -56,7 +56,7 @@ oci iam compartment create -c "${TENANCY}" --description "Container Engine for o
 
 ```
 
-## Create Oracle Container Engine
+## Create Container Engine for Kubernetes (OKE)
 
 ```bash
 # Virtual Network
@@ -137,9 +137,9 @@ oci ce cluster create-kubeconfig --cluster-id "${OCE}"
 
 ## [01 - Building application containers](module01/README.md)
 
-## [02 - Introduction to Oracle Container Engine](module02/README.md)
+## [02 - Introduction to Container Engine for Kubernetes (OKE)](module02/README.md)
 
-## [03 - Deploy application to Oracle Container Engine](module03/README.md)
+## [03 - Deploy application to Container Engine for Kubernetes (OKE)](module03/README.md)
 
 ## [04 - Optimizing deployment in Kubernetes](module04/README.md)
 

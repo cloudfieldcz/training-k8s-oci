@@ -1,4 +1,4 @@
-# 03 - Deploy application to Oracle Container Engine
+# 03 - Deploy application to Container Engine for Kubernetes (OKE)
 
 ```bash
 # goto directory for this lab
