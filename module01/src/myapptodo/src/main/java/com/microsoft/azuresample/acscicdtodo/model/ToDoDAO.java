@@ -5,6 +5,7 @@ import com.microsoft.azuresample.acscicdtodo.Utils.SqlHelper;
 import java.sql.Connection;
 import javax.annotation.PostConstruct;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -20,24 +21,39 @@ public class ToDoDAO {
     @PostConstruct
     public void init() throws SQLException {
         LOG.info("### INIT of ToDoDAO called.");
-
+        Boolean createTab = false;
         try {
             Connection conn = SqlHelper.GetConnection();
-            try (PreparedStatement stmt = conn.prepareStatement(
-                            "CREATE TABLE IF NOT EXISTS ToDo(\n" +
-                            " Id varchar(50) NOT NULL,\n" +
-                            " Category varchar(50) NULL,\n" +
-                            " Comment varchar(500) NULL,\n" +
-                            " Created timestamp NOT NULL,\n" +
-                            " Updated timestamp NOT NULL\n" +
-                            ");"))
+            // check if table exists
+            try (PreparedStatement selectStatement = conn.prepareStatement(
+                "select count(*) as CNT from tab where tname='TODO'"))
             {
-                stmt.executeUpdate();
+                ResultSet rs = selectStatement.executeQuery();
+                rs.next();
+                createTab = rs.getInt("CNT") == 0;
+                rs.close();
             }finally {
-                conn.close();
+                if(!createTab) conn.close();
+            }
+            LOG.info("### INIT of ToDoDAO called -> create table: " + createTab.toString());            
+            if(createTab){
+                //create table
+                try (Statement stmt = conn.createStatement())
+                {
+                    stmt.executeUpdate(
+                        "CREATE TABLE TODO(" +
+                        " \"ID\" VARCHAR2(50) NOT NULL," +
+                        " \"CATEGORY\" VARCHAR2(50) NULL," +
+                        " \"COMMENT\" VARCHAR2(500) NULL," +
+                        " \"CREATED\" TIMESTAMP(2) NOT NULL," +
+                        " \"UPDATED\" TIMESTAMP(2) NOT NULL" +
+                        ")");
+                }finally {
+                    conn.close();
+                }
             }
         } catch (SQLException e) {
-            LOG.error("ERROR: cannot connect to PostgreSQL Server.");
+            LOG.error("ERROR: cannot connect to Server.");
             throw e;
         }
     }
@@ -47,16 +63,16 @@ public class ToDoDAO {
         try {
             Connection conn = SqlHelper.GetConnection();
             try (PreparedStatement selectStatement = conn.prepareStatement(
-                    "SELECT Id, Comment, Category, Created, Updated FROM ToDo"))
+                    "SELECT * FROM todo"))
             {
                 ResultSet rs = selectStatement.executeQuery();
                 while(rs.next()) {
                     ret.add(new ToDo(
-                            rs.getString("Id"),
-                            rs.getString("Comment"),
-                            rs.getString("Category"),
-                            rs.getDate("Created"),
-                            rs.getDate("Updated")
+                            rs.getString("ID"),
+                            rs.getString("COMMENT"),
+                            rs.getString("CATEGORY"),
+                            rs.getDate("CREATED"),
+                            rs.getDate("UPDATED")
                             ));
                 }
                 rs.close();
@@ -64,7 +80,7 @@ public class ToDoDAO {
                 conn.close();
             }
         } catch (SQLException e) {
-            LOG.error("ERROR: cannot connect to PostgreSQL Server.");
+            LOG.error("ERROR: cannot connect to Server.");
         }
         return ret;
     }
@@ -74,26 +90,26 @@ public class ToDoDAO {
         try {
             Connection conn = SqlHelper.GetConnection();
             try (PreparedStatement selectStatement = conn.prepareStatement(
-                    "SELECT Id, Comment, Category, Created, Updated FROM ToDo WHERE Id=?"))
+                    "SELECT * FROM Todo WHERE Id=?"))
             {
                 selectStatement.setString(1, id);
 
                 ResultSet rs = selectStatement.executeQuery();
                 while(rs.next()) {
                     ret = new ToDo(
-                            rs.getString("Id"),
-                            rs.getString("Comment"),
-                            rs.getString("Category"),
-                            rs.getDate("Created"),
-                            rs.getDate("Updated")
-                            );
+                        rs.getString("ID"),
+                        rs.getString("COMMENT"),
+                        rs.getString("CATEGORY"),
+                        rs.getDate("CREATED"),
+                        rs.getDate("UPDATED")
+                        );
                 }
                 rs.close();
             }finally {
                 conn.close();
             }
         } catch (SQLException e) {
-            LOG.error("ERROR: cannot connect to PostgreSQL Server.");
+            LOG.error("ERROR: cannot connect to Server.");
         }
         return ret;
     }
@@ -103,7 +119,7 @@ public class ToDoDAO {
         try {
             Connection conn = SqlHelper.GetConnection();
             try (PreparedStatement stmt = conn.prepareStatement(
-                    "INSERT INTO ToDo(Id, Comment, Category, Created, Updated) VALUES(?,?,?,?,?)"))
+                    "INSERT INTO TODO(ID, \"COMMENT\", CATEGORY, CREATED, UPDATED) VALUES(?,?,?,?,?)"))
             {
                 stmt.setString(1, item.getId());
                 stmt.setString(2, item.getComment());
@@ -116,7 +132,8 @@ public class ToDoDAO {
                 conn.close();
             }
         } catch (SQLException e) {
-            LOG.error("ERROR: cannot connect to PostgreSQL Server.");
+            LOG.error("ERROR: cannot connect to Server.");
+            LOG.error("SQL Err: ", e);
         }
 
         return item;
@@ -127,7 +144,7 @@ public class ToDoDAO {
         try {
             Connection conn = SqlHelper.GetConnection();
             try (PreparedStatement stmt = conn.prepareStatement(
-                    "UPDATE ToDo SET Comment=?, Category=?, Updated=? WHERE id=?"))
+                    "UPDATE TODO SET \"COMMENT\"=?, CATEGORY=?, UPDATED=? WHERE ID=?"))
             {
                 stmt.setString(4, item.getId());
                 stmt.setString(1, item.getComment());
@@ -139,7 +156,7 @@ public class ToDoDAO {
                 conn.close();
             }
         } catch (SQLException e) {
-            LOG.error("ERROR: cannot connect to PostgreSQL Server.");
+            LOG.error("ERROR: cannot connect to Server.", e);
         }
 
         return item;
