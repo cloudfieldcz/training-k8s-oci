@@ -19,7 +19,7 @@ kubectl create secret docker-registry ocirsecret --docker-server=${DOCKER_SRV} \
 
 # Change yaml files to your ACR name
 ```
-sed -i 's/YOUROCIRNAME/'$DOCKER_PATH'/g' *.yaml
+sed -i 's,YOUROCIRNAME,'$DOCKER_PATH',g' *.yaml
 ```
 
 # Deploy single Pod

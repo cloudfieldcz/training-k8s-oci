@@ -35,21 +35,16 @@ kubectl create secret docker-registry ocirsecret --docker-server=${DOCKER_SRV} \
 ## prepare deployment infra
 
 ```bash
+# create secrets -> change Oracle connection credentials there and use orawalet
+export ORASQL_URL='jdbc:oracle:thin:@tcps://adb.eu-frankfurt-1.oraclecloud.com:1522/#####.adb.oraclecloud.com?oracle.net.ssl_server_cert_dn="CN=adwc.eucom-central-1.oraclecloud.com,OU=Oracle BMCS FRANKFURT,O=Oracle Corporation,L=Redwood City,ST=California,C=US"&javax.net.ssl.trustStore=/home/user/orawalet/truststore.jks&javax.net.ssl.trustStorePassword=#####&javax.net.ssl.keyStore=/home/user/orawalet/keystore.jks&javax.net.ssl.keyStorePassword=#####&user=admin&password=#####'
 
-export DBUSER="todo"
-export DBPASSWORD="pwd123..."
-
-# deploy postgress
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm repo update 
-
-helm install mypostgress bitnami/postgresql --namespace='myapp' --set-string global.postgresql.postgresqlDatabase="todo",global.postgresql.postgresqlUsername="${DBUSER}",global.postgresql.postgresqlPassword="${DBPASSWORD}"
-
-# secrets for app
-POSTGRESQL_URL="jdbc:postgresql://mypostgress-postgresql:5432/todo?user=${DBUSER}&password=${DBPASSWORD}"
-kubectl create secret generic myrelease-myapp \
-  --from-literal=postgresqlurl="$POSTGRESQL_URL" \
+kubectl create secret generic myapptodo-secret \
+  --from-literal=orasqlurl="$ORASQL_URL" \
   --namespace myapp
+
+# configmap
+# store oracle walet files in configmap
+kubectl create configmap my-config -n myapp --from-file=/mnt/c/Src/sandbox/orawalet
 
 # Get ingress public IP
 export INGRESS_IP=$(kubectl get service nginx-ingress-ingress-nginx-controller  -n nginx-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
