@@ -5,7 +5,7 @@
 cd ../module03
 ```
 
-## Create PostgreSQL service
+## Create namespace for application
 
 ```bash
 #variables
