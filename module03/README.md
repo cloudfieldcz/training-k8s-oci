@@ -50,7 +50,7 @@ sed -i 's/YOURINGRESSIP/'$INGRESS_IP'/g' myapp-deploy/*.yaml
 # create secrets -> change Oracle connection credentials there and use orawalet
 export ORASQL_URL='jdbc:oracle:thin:@tcps://adb.eu-frankfurt-1.oraclecloud.com:1522/#####.adb.oraclecloud.com?oracle.net.ssl_server_cert_dn="CN=adwc.eucom-central-1.oraclecloud.com,OU=Oracle BMCS FRANKFURT,O=Oracle Corporation,L=Redwood City,ST=California,C=US"&javax.net.ssl.trustStore=/home/user/orawalet/truststore.jks&javax.net.ssl.trustStorePassword=#####&javax.net.ssl.keyStore=/home/user/orawalet/keystore.jks&javax.net.ssl.keyStorePassword=#####&user=admin&password=#####'
 
-kubectl create secret generic myrelease-myapp \
+kubectl create secret generic myapptodo-secret \
   --from-literal=orasqlurl="$ORASQL_URL" \
   --namespace myapp
 
