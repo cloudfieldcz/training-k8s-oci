@@ -5,7 +5,7 @@
 cd ../module03
 ```
 
-## Create PostgreSQL service
+## Create namespace for application
 
 ```bash
 #variables
@@ -13,15 +13,6 @@ cd ../module03
 
 # create namespace
 kubectl create namespace myapp
-
-export DBUSER="todo"
-export DBPASSWORD="pwd123..."
-
-# deploy postgress
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm repo update 
-
-helm install mypostgress bitnami/postgresql --namespace='myapp' --set-string global.postgresql.postgresqlDatabase="todo",global.postgresql.postgresqlUsername="${DBUSER}",global.postgresql.postgresqlPassword="${DBPASSWORD}"
 
 ```
 ## Setup access for Container Registry
@@ -44,7 +35,7 @@ Replace public IP address of your nginx ingress controller for host rule in file
 
 ```bash
 # Change yaml files to your ACR name
-sed -i 's/YOUROCIRNAME/'$DOCKER_PATH'/g' myapp-deploy/*.yaml
+sed -i 's,YOUROCIRNAME,'$DOCKER_PATH',g' myapp-deploy/*.yaml
 
 # Get ingress public IP
 export INGRESS_IP=$(kubectl get service nginx-ingress-ingress-nginx-controller -n nginx-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
@@ -56,11 +47,16 @@ sed -i 's/YOURINGRESSIP/'$INGRESS_IP'/g' myapp-deploy/*.yaml
 
 ```bash
 
-# create secrets
-POSTGRESQL_URL="jdbc:postgresql://mypostgress-postgresql:5432/todo?user=${DBUSER}&password=${DBPASSWORD}"
+# create secrets -> change Oracle connection credentials there and use orawalet
+export ORASQL_URL='jdbc:oracle:thin:@tcps://adb.eu-frankfurt-1.oraclecloud.com:1522/#####.adb.oraclecloud.com?oracle.net.ssl_server_cert_dn="CN=adwc.eucom-central-1.oraclecloud.com,OU=Oracle BMCS FRANKFURT,O=Oracle Corporation,L=Redwood City,ST=California,C=US"&javax.net.ssl.trustStore=/home/user/orawalet/truststore.jks&javax.net.ssl.trustStorePassword=#####&javax.net.ssl.keyStore=/home/user/orawalet/keystore.jks&javax.net.ssl.keyStorePassword=#####&user=admin&password=#####'
+
 kubectl create secret generic myapptodo-secret \
-  --from-literal=postgresqlurl="$POSTGRESQL_URL" \
+  --from-literal=orasqlurl="$ORASQL_URL" \
   --namespace myapp
+
+# configmap
+# store oracle walet files in configmap
+kubectl create configmap my-config -n myapp --from-file=/mnt/c/Src/sandbox/orawalet
 
 # create deployment
 kubectl apply -f myapp-deploy --namespace myapp
@@ -72,7 +68,7 @@ Now we will create canary deployment with version v2 and we will balance there 1
 
 ```bash
 # Change yaml files to your ACR name
-sed -i 's/YOUROCIRNAME/'$DOCKER_PATH'/g' myapp-deploy-canary/*.yaml
+sed -i 's,YOUROCIRNAME,'$DOCKER_PATH',g' myapp-deploy-canary/*.yaml
 
 # Get ingress public IP
 export INGRESS_IP=$(kubectl get service nginx-ingress-ingress-nginx-controller -n nginx-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')

@@ -26,7 +26,7 @@ public class SqlHelper {
 
     public void Init(){
         Map<String, String> env = System.getenv();
-        sqlurl = env.get("POSTGRESQL_URL");
+        sqlurl = env.get("ORASQL_URL");
 
         LOG.info("### INIT of SqlHelper called.");
     }

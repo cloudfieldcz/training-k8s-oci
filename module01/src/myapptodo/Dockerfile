@@ -1,5 +1,5 @@
 ### BASE image - bare base image for our app with basic environment, JRE only
-FROM openjdk:8-slim AS base   
+FROM openjdk:16-slim AS base   
 RUN useradd --create-home -s /bin/bash user
 WORKDIR /home/user
 USER user
@@ -10,7 +10,7 @@ RUN mkdir $APP_HOME
 RUN mkdir $APP_HOME/config
 
 ### BUILD image - image used to build app (full JDK)
-FROM openjdk:8-jdk-alpine AS build
+FROM openjdk:16-jdk-alpine AS build
 # Install Maven
 RUN apk add --no-cache curl tar bash
 ARG MAVEN_VERSION=3.3.9
@@ -30,6 +30,9 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 # install maven dependency packages (keep in image)
 COPY pom.xml /usr/src/app
+RUN mvn dependency:go-offline
+
+# build app
 COPY src /usr/src/app/src
 # Build my applicatio
 RUN mvn clean package
@@ -39,8 +42,5 @@ FROM base as final
 USER user
 WORKDIR $APP_HOME
 COPY --chown=user:user --from=build /usr/src/app/target/app.jar .
-# certificate for postgres
-RUN mkdir /home/user/.postgresql
-COPY --chown=user:user src/main/postgresql/root.crt /home/user/.postgresql/
 # run it ...
 ENTRYPOINT [ "java", "-Djava.security.egd=file:/dev/./urandom", "-Duser.home=/home/user", "-jar", "app.jar" ]

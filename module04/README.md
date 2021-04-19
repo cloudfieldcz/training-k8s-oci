@@ -1,7 +1,7 @@
 # Prepare deployment files
 ```bash
 cd ../module04
-sed -i 's/YOUROCIRNAME/'$DOCKER_PATH'/g' *.yaml
+sed -i 's,YOUROCIRNAME,'$DOCKER_PATH',g' *.yaml
 ```
 
 # Use ConfigMap to tweek nginx configuration

@@ -42,10 +42,19 @@ spec:
         env:
           - name: NGINX_HTTP_PORT_NUMBER
             value: "8080"
-          - name: POSTGRESQL_URL
+          - name: ORASQL_URL
             valueFrom:
               secretKeyRef:
                 name: myapptodo-secret
-                key: postgresqlurl
+                key: orasqlurl
+        volumeMounts:
+          - name: config-volume
+            mountPath: /home/user/orawalet
       imagePullSecrets:
         - name: ocirsecret
+      volumes:
+        - name: config-volume
+          configMap:
+            # Provide the name of the ConfigMap containing the files you want
+            # to add to the container
+            name: my-config
