@@ -18,6 +18,6 @@ public class JavaWebApp {
     
     public static void main(String[] args) {
         ApplicationContext ctx = SpringApplication.run(JavaWebApp.class, args);
-        LOG.info("My Spring Boot app started ...");
+        LOG.info("My Spring Boot app started (v5)...");
     }
 }

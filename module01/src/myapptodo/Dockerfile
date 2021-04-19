@@ -30,6 +30,9 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 # install maven dependency packages (keep in image)
 COPY pom.xml /usr/src/app
+RUN mvn dependency:go-offline
+
+# build app
 COPY src /usr/src/app/src
 # Build my applicatio
 RUN mvn clean package

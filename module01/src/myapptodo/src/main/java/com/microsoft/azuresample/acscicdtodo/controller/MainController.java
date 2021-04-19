@@ -17,11 +17,11 @@ public class MainController {
     ToDoDAO dao=new ToDoDAO();
 
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/api/todo/{id}", method = { RequestMethod.PUT })
+    @PutMapping("/api/todo/{id}")
     public
     @ResponseBody
-    ToDo putToDo(@RequestBody ToDo item) {
-        LOG.info("PUT todo.");
+    ToDo putToDo(@PathVariable("id") String id, @RequestBody ToDo item) {
+        LOG.info("PUT todo id: " + id);
         item.setCreated(new Date());
         dao.update(item);
         item=dao.query(item.getId());
@@ -29,7 +29,7 @@ public class MainController {
     }
 
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/api/todo", method = { RequestMethod.GET })
+    @GetMapping("/api/todo")
     public
     @ResponseBody
     List<ToDo> getToDo() {
@@ -39,7 +39,7 @@ public class MainController {
     }
 
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/api/todo", method = { RequestMethod.POST })
+    @PostMapping("/api/todo")
     public
     @ResponseBody
     ToDo postToDo(@RequestBody ToDo item) {
@@ -53,7 +53,7 @@ public class MainController {
     }
 
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/api/todo/{id}", method = { RequestMethod.GET })
+    @GetMapping("/api/todo/{id}")
     public
     @ResponseBody
     ToDo getToDo(@PathVariable("id") String id) {
