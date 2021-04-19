@@ -41,8 +41,6 @@ apptodo:
   ingress:
     enabled: true
     myservicepath: /api/todo
-    annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: "/api/todo"
     tls:
   resources: 
     limits:
